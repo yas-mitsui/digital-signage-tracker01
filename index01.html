@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITクラブ デジタルサイネージ</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .countdown {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 1rem 0;
+        }
+        
+        .manual-link {
+            margin-top: 2rem;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .manual-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ffeb3b, #ff9800);
+            border-radius: 3px;
+            animation: progress 5s linear forwards;
+            width: 0%;
+        }
+        
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        @media (max-width: 600px) {
+            .logo {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">ITクラブ</div>
+        <div class="subtitle">デジタルサイネージ</div>
+        
+        <div class="spinner"></div>
+        
+        <div class="loading">まもなくページに移動します</div>
+        
+        <div class="countdown" id="countdown">5</div>
+        
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        
+        <a class="manual-link" onclick="manualRedirect()">
+            今すぐ移動する
+        </a>
+    </div>
+
+    <script>
+        // 移動先URL
+        const TARGET_URL = 'https://lin.ee/wb25o0m';
+        
+        // URLパラメータを取得
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return Object.fromEntries(params.entries());
+        }
+
+        // Google Analytics イベント送信
+        function trackEvent() {
+            const params = getUrlParams();
+            
+            // イベント送信（GA_MEASUREMENT_IDが設定されている場合のみ）
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'itclub_signage_access', {
+                    'event_category': 'Digital Signage',
+                    'event_label': 'ITクラブ',
+                    'campaign_name': 'ITクラブ_デジタルサイネージ',
+                    'target_url': TARGET_URL,
+                    'access_time': new Date().toISOString(),
+                    'page_location': window.location.href,
+                    'custom_parameter_1': params.location || 'unknown',
+                    'custom_parameter_2': params.source || 'qr_code'
+                });
+            }
+        }
+
+        // カウントダウン機能
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdownTimer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(countdownTimer);
+                countdownElement.textContent = '移動中...';
+                redirect();
+            }
+        }, 1000);
+
+        // リダイレクト実行
+        function redirect() {
+            trackEvent();
+            setTimeout(() => {
+                window.location.href = TARGET_URL;
+            }, 500);
+        }
+
+        // 手動リダイレクト
+        function manualRedirect() {
+            clearInterval(countdownTimer);
+            countdownElement.textContent = '移動中...';
+            redirect();
+        }
+
+        // ページ読み込み時にトラッキング開始
+        window.onload = function() {
+            // 初回アクセストラッキング
+            if (typeof gtag !== 'undefined') {
+                gtag('config', 'GA_MEASUREMENT_ID', {
+                    page_title: 'ITクラブ デジタルサイネージ',
+                    page_location: window.location.href
+                });
+            }
+        };
+    </script>
+</body>
+</html>
